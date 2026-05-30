@@ -9,7 +9,8 @@ import service.PatronService;
 import strategy.SearchByAuthor;
 import strategy.SearchByISBN;
 import strategy.SearchByTitle;
-
+// import strategy.SearchByYear;
+import util.TablePrinter;
 import java.util.Scanner;
 
 public class Main {
@@ -33,15 +34,20 @@ public class Main {
             System.out.println("===== LIBRARY MANAGEMENT SYSTEM =====");
             System.out.println("1. Add Book");
             System.out.println("2. View All Books");
-            System.out.println("3. Search Book By Title");
-            System.out.println("4. Search Book By Author");
-            System.out.println("5. Search Book By ISBN");
-            System.out.println("6. Remove Book");
-            System.out.println("7. Add Patron");
-            System.out.println("8. Checkout Book");
-            System.out.println("9. Return Book");
-            System.out.println("10. View Patron Borrowed Books");
-            System.out.println("11. Exit");
+            System.out.println("3. Update Books");
+            System.out.println("4. Remove Book");
+            System.out.println("5. Search Book By Title");
+            System.out.println("6. Search Book By Author");
+            System.out.println("7. Search Book By ISBN");
+            System.out.println("8. Add Patron");
+            System.out.println("9. Update Patron");
+            System.out.println("10. Checkout Book");
+            System.out.println("11. Return Book");
+            System.out.println("12. View Patron Borrowed Books");
+            System.out.println("13. View Borrowing History");
+            System.out.println("14. View Available Books");
+            System.out.println("15. View Borrowed Books");
+            System.out.println("16. Exit");
             System.out.print("Enter your choice: ");
 
             int choice = scanner.nextInt();
@@ -73,66 +79,58 @@ public class Main {
                 case 2:
 
                     System.out.println("===== ALL BOOKS =====");
-
-                    for (Book book : bookService.getAllBooks()) {
-                        System.out.println(book);
-                    }
-
+                    TablePrinter.printBooks(bookService.getAllBooks());
                     break;
 
                 case 3:
+                    System.out.print("Enter ISBN: ");
+                    String updateISBN = scanner.nextLine();
 
-                    System.out.print("Enter title to search: ");
-                    String searchTitle = scanner.nextLine();
+                    System.out.print("Enter New Title: ");
+                    String newTitle = scanner.nextLine();
 
-                    System.out.println(
-                            bookService.searchBooks(
-                                    new SearchByTitle(),
-                                    searchTitle
-                            )
-                    );
+                    System.out.print("Enter New Author: ");
+                    String newAuthor = scanner.nextLine();
 
+                    System.out.print("Enter New Year: ");
+                    int newYear = scanner.nextInt();
+                    scanner.nextLine();
+
+                    boolean updated = bookService.updateBook(updateISBN, newTitle, newAuthor, newYear);
+                    System.out.println(updated ? "Book updated successfully." : "Book not found.");
                     break;
 
                 case 4:
 
-                    System.out.print("Enter author to search: ");
-                    String searchAuthor = scanner.nextLine();
-
-                    System.out.println(
-                            bookService.searchBooks(
-                                    new SearchByAuthor(),
-                                    searchAuthor
-                            )
-                    );
-
+                    System.out.print("Enter ISBN to remove: ");
+                    String removeISBN = scanner.nextLine();
+                    bookService.removeBook(removeISBN);
+                    System.out.println("Book removed successfully.");
                     break;
+
 
                 case 5:
 
-                    System.out.print("Enter ISBN to search: ");
-                    String searchISBN = scanner.nextLine();
-
-                    System.out.println(
-                            bookService.searchBooks(
-                                    new SearchByISBN(),
-                                    searchISBN
-                            )
-                    );
-
+                    System.out.print("Enter title to search: ");
+                    String searchTitle = scanner.nextLine();
+                    TablePrinter.printBooks(bookService.searchBooks(new SearchByTitle(), searchTitle));
                     break;
 
                 case 6:
 
-                    System.out.print("Enter ISBN to remove: ");
-                    String removeISBN = scanner.nextLine();
-
-                    bookService.removeBook(removeISBN);
-
-                    System.out.println("Book removed successfully.");
+                    System.out.print("Enter author to search: ");
+                    String searchAuthor = scanner.nextLine();
+                    TablePrinter.printBooks(bookService.searchBooks(new SearchByAuthor(), searchAuthor));
                     break;
 
                 case 7:
+
+                    System.out.print("Enter ISBN to search: ");
+                    String searchISBN = scanner.nextLine();
+                    TablePrinter.printBooks(bookService.searchBooks(new SearchByISBN(), searchISBN));
+                    break;
+
+                case 8:
 
                     System.out.print("Enter Patron ID: ");
                     int patronId = scanner.nextInt();
@@ -147,7 +145,19 @@ public class Main {
                     System.out.println("Patron added successfully.");
                     break;
 
-                case 8:
+                case 9:
+                    System.out.print("Enter Patron ID: ");
+                    int updatePatronId = scanner.nextInt();
+                    scanner.nextLine();
+                    
+                    System.out.print("Enter New Name: ");
+                    String updatedName = scanner.nextLine();
+                    
+                    boolean patronUpdated = patronService.updatePatron(updatePatronId, updatedName);
+                    System.out.println(patronUpdated ? "Patron updated successfully." : "Patron not found.");
+                    break;
+
+                case 10:
 
                     System.out.print("Enter Patron ID: ");
                     int checkoutPatronId = scanner.nextInt();
@@ -180,7 +190,7 @@ public class Main {
                     lendingService.checkoutBook(checkoutBook, checkoutPatron);
                     break;
 
-                case 9:
+                case 11:
 
                     System.out.print("Enter Patron ID: ");
                     int returnPatronId = scanner.nextInt();
@@ -213,7 +223,7 @@ public class Main {
                     lendingService.returnBook(returnBook, returnPatron);
                     break;
 
-                case 10:
+                case 12:
 
                     System.out.print("Enter Patron ID: ");
                     int borrowedPatronId = scanner.nextInt();
@@ -234,7 +244,37 @@ public class Main {
 
                     break;
 
-                case 11:
+                case 13:
+                    System.out.print("Enter Patron ID: ");
+
+                    int historyId = scanner.nextInt();
+                    scanner.nextLine();
+                    Patron historyPatron = patronService.getPatronById(historyId);
+                    
+                    if (historyPatron == null) {
+                        System.out.println("Patron not found.");
+                        break;
+                    }
+
+                    System.out.println("Borrowing History");
+
+                    for (Book book : historyPatron.getBorrowingHistory()) {
+
+                        System.out.println(book);
+                    }
+
+                    break;
+
+                case 14:
+                    TablePrinter.printBooks(bookService.getAvailableBooks());
+                    break;
+
+                case 15:
+
+                    TablePrinter.printBooks(bookService.getBorrowedBooks());
+                    break;
+
+                case 16:
 
                     running = false;
                     System.out.println("Exiting Library Management System...");

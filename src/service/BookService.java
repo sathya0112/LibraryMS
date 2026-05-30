@@ -38,4 +38,35 @@ public class BookService {
     public List<Book> getAllBooks() {
         return bookRepository.getAllBooks();
     }
+
+    public boolean updateBook(String isbn, String title, String author, int year) {
+        return bookRepository.updateBook(isbn, title, author, year);
+    }
+
+    public Book findBookByISBN(String isbn) {
+        return bookRepository.findBookByISBN(isbn);
+    }
+
+    public List<Book> getAvailableBooks() {
+        List<Book> availableBooks = new java.util.ArrayList<>();
+        for (Book book : bookRepository.getAllBooks()) {
+            if (book.isAvailable()) {
+                availableBooks.add(book);
+            }
+        }
+        return availableBooks;
+    }
+
+    public List<Book> getBorrowedBooks() {
+        List<Book> borrowedBooks = new java.util.ArrayList<>();
+        for (Book book : bookRepository.getAllBooks()) {
+            if (!book.isAvailable()) {
+                borrowedBooks.add(book);
+            }
+        }
+
+        return borrowedBooks;
+    }
+
+    
 }
