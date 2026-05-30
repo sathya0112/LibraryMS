@@ -25,4 +25,17 @@ public class PatronRepository {
         }
         return null;
     }
+
+    public boolean updatePatron(int id, String newName) {
+        Patron patron = findPatronById(id);
+        if (patron == null) {
+            return false;
+        }
+        patron.setName(newName);
+        return true;
+    }
+
+    public boolean patronExists(int id) {
+        return findPatronById(id) != null;
+    }
 }
